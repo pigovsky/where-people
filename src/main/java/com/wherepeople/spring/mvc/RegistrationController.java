@@ -1,19 +1,30 @@
 package com.wherepeople.spring.mvc;
 
+import com.google.appengine.api.users.UserServiceFactory;
 import com.wherepeople.spring.mvc.model.ApiConstants;
+import com.wherepeople.spring.mvc.model.AppRole;
+import com.wherepeople.spring.mvc.model.GaeUserAuthentication;
+import com.wherepeople.spring.mvc.model.RegistrationForm;
+import com.wherepeople.spring.mvc.model.person.GaeUser;
 import com.wherepeople.spring.mvc.model.person.Person;
 import com.wherepeople.spring.mvc.model.person.RegistrationResult;
 import com.wherepeople.spring.mvc.repository.PersonRepository;
+import com.wherepeople.spring.mvc.repository.UserRegistry;
 import com.wherepeople.spring.mvc.util.WebServiceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 @Controller
 @RequestMapping("/")
-public class PersonController {
+public class RegistrationController {
     @Autowired
     private PersonRepository personRepository;
 
@@ -57,5 +68,29 @@ public class PersonController {
     public String deletePerson(@PathVariable("userId") Long userId){
         personRepository.delete(personRepository.findOne(userId));
         return "redirect:/";
+    }
+
+    @Autowired
+    private UserRegistry registry;
+
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
+    public String register() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        GaeUser currentUser = (GaeUser)authentication.getPrincipal();
+        Set<AppRole> roles = EnumSet.of(AppRole.USER);
+
+        if (UserServiceFactory.getUserService().isUserAdmin()) {
+            roles.add(AppRole.ADMIN);
+        }
+
+        GaeUser user = new GaeUser(currentUser.getUserId(), currentUser.getNickname(), currentUser.getEmail(),
+                "unspecified", "unspecified", roles, true);
+
+        registry.registerUser(user);
+
+        // Update the context with the full authentication
+        SecurityContextHolder.getContext().setAuthentication(new GaeUserAuthentication(user, authentication.getDetails()));
+
+        return "redirect:/home.htm";
     }
 }
