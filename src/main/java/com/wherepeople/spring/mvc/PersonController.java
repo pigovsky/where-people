@@ -85,6 +85,11 @@ public class PersonController {
         }
     }
 
+    @RequestMapping("/api/locations")
+    public @ResponseBody String locations(){
+        return WebServiceUtil.GSON.toJson(locationRepository.findAll());
+    }
+
     @RequestMapping(value = "/api/location", method = RequestMethod.POST, consumes = ApiConstants.APPLICATION_JSON,
             produces = ApiConstants.APPLICATION_JSON)
     public @ResponseBody String location(@RequestBody String locationJson){
@@ -93,15 +98,14 @@ public class PersonController {
             if (WebServiceUtil.isEmptyOrNull(location.getAccessToken())){
                 throw new Exception("Access token is empty");
             }
-            if (accessTokenRepository.findOneByAccesstoken(location.getAccessToken()) != null) {
-                AccessToken accessToken = new AccessToken();
-                accessToken.setUsername(location.getUsername());
-                byte[] md5s = MessageDigest.getInstance("MD5").digest((location.getUsername() + location.getPassword() + Calendar.getInstance().getTime().getTime()).getBytes());
-                accessToken.setAccessToken(bytesToString(md5s));
-                accessTokenRepository.save(accessToken);
-                return WebServiceUtil.GSON.toJson(accessToken);
+            AccessToken accesstoken = accessTokenRepository.findOneByAccessToken(location.getAccessToken());
+            if (accesstoken != null) {
+                location.setDateTime(Calendar.getInstance().getTime().getTime());
+                location.setUsername(accesstoken.getUsername());
+                locationRepository.save(location);
+                return WebServiceUtil.GSON.toJson(location);
             } else {
-                throw new Exception("Incorrect login/password");
+                throw new Exception("Invalid access token");
             }
         } catch (Exception e){
             e.printStackTrace();
