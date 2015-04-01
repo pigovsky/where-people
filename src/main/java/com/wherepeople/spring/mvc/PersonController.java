@@ -16,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import sun.misc.Hashing;
 
+import javax.validation.Valid;
 import java.security.MessageDigest;
 import java.util.Calendar;
 
@@ -122,7 +123,10 @@ public class PersonController {
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public String addPerson(@ModelAttribute("person") Person person, BindingResult result){
+    public String addPerson(@Valid @ModelAttribute("person") Person person, BindingResult result){
+        if(result.hasErrors()){
+            return "people";
+        }
         personRepository.save(person);
         return "redirect:/";
     }

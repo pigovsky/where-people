@@ -14,11 +14,26 @@
         <div class="row">
             <div class="span8 offset2">
                 <h1>Users</h1>
-                <form:form method="post" action="add" commandName="person" class="form-horizontal">
+                <form:form method="post" action="add" modelAttribute="person" class="form-horizontal">
                     <div class="control-group">
-                        <form:label  cssClass="control-label" path="">Name:</form:label>
+                        <form:label  cssClass="control-label" path="name">Name:</form:label>
                         <div class="controls">
                             <form:input path="name"/>
+                            <form:errors path="name"/>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <form:label  cssClass="control-label" path="username">Username:</form:label>
+                        <div class="controls">
+                            <form:input path="username"/>
+                            <form:errors path="username"/>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <form:label  cssClass="control-label" path="password">Password:</form:label>
+                        <div class="controls">
+                            <form:input path="password"/>
+                            <form:errors path="password"/>
                         </div>
                     </div>
                     <div class="control-group">
