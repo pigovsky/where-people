@@ -1,58 +1,43 @@
 package com.wherepeople.spring.mvc;
 
 import com.wherepeople.spring.mvc.model.ApiConstants;
-import com.wherepeople.spring.mvc.model.location.Location;
-import com.wherepeople.spring.mvc.model.login.AccessToken;
 import com.wherepeople.spring.mvc.model.person.Person;
-import com.wherepeople.spring.mvc.model.person.RegistrationResult;
-import com.wherepeople.spring.mvc.repository.AccessTokenRepository;
-import com.wherepeople.spring.mvc.repository.LocationRepository;
-import com.wherepeople.spring.mvc.repository.PersonRepository;
+import com.wherepeople.spring.mvc.model.person.RequestResult;
+import com.wherepeople.spring.mvc.service.UserService;
 import com.wherepeople.spring.mvc.util.WebServiceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import sun.misc.Hashing;
 
 import javax.validation.Valid;
-import java.security.MessageDigest;
-import java.util.Calendar;
 
 @Controller
 @RequestMapping("/")
 public class PersonController {
+    public static final String PEOPLE = "people";
     @Autowired
-    private PersonRepository personRepository;
-
-    @Autowired
-    private AccessTokenRepository accessTokenRepository;
-
-    @Autowired
-    private LocationRepository locationRepository;
+    private UserService userService;
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String printPeople(ModelMap model) {
 		model.addAttribute("person", new Person());
-        model.addAttribute("people", personRepository.findAll());
+        model.addAttribute("people", userService.getAllUsers());
 		return "people";
 	}
 
     @RequestMapping(value = "/api/register", method = RequestMethod.POST, consumes = ApiConstants.APPLICATION_JSON,
         produces = ApiConstants.APPLICATION_JSON)
     public @ResponseBody String addPerson(@RequestBody String personJson){
-        RegistrationResult registrationResult = new RegistrationResult();
+        RequestResult registrationResult = new RequestResult();
 
         try {
             Person person = WebServiceUtil.GSON.fromJson(personJson, Person.class);
             if (WebServiceUtil.isEmptyOrNull(person.getUsername()) || WebServiceUtil.isEmptyOrNull(person.getPassword())){
                 throw new Exception("Username or password is empty");
             }
-            if (personRepository.findOneByUsername(person.getUsername()) != null){
-                throw new Exception(String.format("Username %s is already in use", person.getUsername()));
-            }
-            personRepository.save(person);
+            userService.createUser(person);
             registrationResult.setSuccess(true);
             registrationResult.setMessage(String.format("User %s was successfully created", person.getUsername()));
         } catch (Exception e){
@@ -67,73 +52,24 @@ public class PersonController {
     public @ResponseBody String login(@RequestBody String personJson){
         try {
             Person person = WebServiceUtil.GSON.fromJson(personJson, Person.class);
-            if (WebServiceUtil.isEmptyOrNull(person.getUsername()) || WebServiceUtil.isEmptyOrNull(person.getPassword())){
-                throw new Exception("Username or password is empty");
-            }
-            if (personRepository.findOneByUsernameAndPassword(person.getUsername(), person.getPassword()) != null) {
-                AccessToken accessToken = new AccessToken();
-                accessToken.setUsername(person.getUsername());
-                byte[] md5s = MessageDigest.getInstance("MD5").digest((person.getUsername() + person.getPassword() + Calendar.getInstance().getTime().getTime()).getBytes());
-                accessToken.setAccessToken(bytesToString(md5s));
-                accessTokenRepository.save(accessToken);
-                return WebServiceUtil.GSON.toJson(accessToken);
-            } else {
-                throw new Exception("Incorrect login/password");
-            }
+            return WebServiceUtil.GSON.toJson(userService.login(person));
         } catch (Exception e){
             e.printStackTrace();
-            return "{error: \""+e.getMessage()+"\"}";
+            return new RequestResult(e.getMessage()).toString();
         }
-    }
-
-    @RequestMapping("/api/locations")
-    public @ResponseBody String locations(){
-        return WebServiceUtil.GSON.toJson(locationRepository.findAll());
-    }
-
-    @RequestMapping(value = "/api/location", method = RequestMethod.POST, consumes = ApiConstants.APPLICATION_JSON,
-            produces = ApiConstants.APPLICATION_JSON)
-    public @ResponseBody String location(@RequestBody String locationJson){
-        try {
-            Location location = WebServiceUtil.GSON.fromJson(locationJson, Location.class);
-            if (WebServiceUtil.isEmptyOrNull(location.getAccessToken())){
-                throw new Exception("Access token is empty");
-            }
-            AccessToken accesstoken = accessTokenRepository.findOneByAccessToken(location.getAccessToken());
-            if (accesstoken != null) {
-                location.setDateTime(Calendar.getInstance().getTime().getTime());
-                location.setUsername(accesstoken.getUsername());
-                locationRepository.save(location);
-                return WebServiceUtil.GSON.toJson(location);
-            } else {
-                throw new Exception("Invalid access token");
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-            return "{error: \""+e.getMessage()+"\"}";
-        }
-    }
-
-    String bytesToString(byte[] arrary){
-        StringBuilder stringBuilder = new StringBuilder();
-        for (byte b : arrary){
-            stringBuilder.append(String.format("%02X",b));
-        }
-        return stringBuilder.toString();
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public String addPerson(@Valid @ModelAttribute("person") Person person, BindingResult result){
         if(result.hasErrors()){
-            return "people";
+            return PEOPLE;
         }
-        personRepository.save(person);
-        return "redirect:/";
-    }
-
-    @RequestMapping(value = "/delete/{userId}")
-    public String deletePerson(@PathVariable("userId") Long userId){
-        personRepository.delete(personRepository.findOne(userId));
+        try {
+            userService.createUser(person);
+        } catch (Exception e) {
+            result.reject(e.getMessage());
+            return PEOPLE;
+        }
         return "redirect:/";
     }
 }
