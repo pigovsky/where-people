@@ -11,4 +11,12 @@ public class WebServiceUtil {
     public static boolean isEmptyOrNull(String value){
         return value == null || value.isEmpty();
     }
+
+    public static String bytesToString(byte[] arrary){
+        StringBuilder stringBuilder = new StringBuilder();
+        for (byte b : arrary){
+            stringBuilder.append(String.format("%02X",b));
+        }
+        return stringBuilder.toString();
+    }
 }

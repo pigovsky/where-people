@@ -31,6 +31,13 @@
 
     <mvc:annotation-driven />
 
+    <mvc:resources mapping="/static/**"
+                   location="/static/" />
+
+    <bean id="multipartResolver" class=
+            "org.springframework.web.multipart.commons.CommonsMultipartResolver"
+           />
+
     <bean id="validator"
           class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 

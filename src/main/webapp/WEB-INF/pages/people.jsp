@@ -14,7 +14,7 @@
         <div class="row">
             <div class="span8 offset2">
                 <h1>Users</h1>
-                <form:form method="post" action="add" modelAttribute="person" class="form-horizontal">
+                <form:form method="post" action="add" modelAttribute="person" class="form-horizontal" enctype="multipart/form-data">
                     <div class="control-group">
                         <form:label  cssClass="control-label" path="name">Name:</form:label>
                         <div class="controls">
@@ -37,6 +37,12 @@
                         </div>
                     </div>
                     <div class="control-group">
+                        Avatar:
+                        <div class="controls">
+                            <input type="file" name="avatarImage"/>
+                        </div>
+                    </div>
+                    <div class="control-group">
                         <div class="controls">
                             <input type="submit" value="Add Person" class="btn"/>
                         </div>
@@ -51,18 +57,18 @@
                 <thead>
                 <tr>
                     <th>Id</th>
+                    <td>Username</td>
                     <th>Name</th>
-                    <th>action</th>
+                    <th>Avatar</th>
                 </tr>
                 </thead>
                 <tbody>
                 <c:forEach items="${people}" var="person">
                     <tr>
                         <td>${person.id}</td>
+                        <td>${person.username}</td>
                         <td>${person.name}</td>
-                        <td><form action="delete/${person.id}" method="post">
-                            <input type="submit" class="btn btn-danger btn-mini" value="Delete"/>
-                        </form> </td>
+                        <td><img src="/static/avatar/${person.avatar}"/> </td>
                     </tr>
                 </c:forEach>
                 </tbody>

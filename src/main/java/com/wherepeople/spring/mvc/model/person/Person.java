@@ -28,6 +28,9 @@ public class Person {
     @Size(min = 6, message = "Password has to consist of at least six characters")
     private String password;
 
+    @Basic
+    private String avatar;
+
     public Long getId() {
         return id;
     }
@@ -58,5 +61,13 @@ public class Person {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

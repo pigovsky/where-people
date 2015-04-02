@@ -1,4 +1,4 @@
-package com.wherepeople.spring.mvc;
+package com.wherepeople.spring.mvc.controler;
 
 import com.wherepeople.spring.mvc.model.ApiConstants;
 import com.wherepeople.spring.mvc.model.location.Location;

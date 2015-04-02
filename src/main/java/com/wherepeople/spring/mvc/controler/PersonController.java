@@ -1,4 +1,4 @@
-package com.wherepeople.spring.mvc;
+package com.wherepeople.spring.mvc.controler;
 
 import com.wherepeople.spring.mvc.model.ApiConstants;
 import com.wherepeople.spring.mvc.model.person.Person;
@@ -6,10 +6,12 @@ import com.wherepeople.spring.mvc.model.person.RequestResult;
 import com.wherepeople.spring.mvc.service.UserService;
 import com.wherepeople.spring.mvc.util.WebServiceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 
@@ -17,6 +19,7 @@ import javax.validation.Valid;
 @RequestMapping("/")
 public class PersonController {
     public static final String PEOPLE = "people";
+
     @Autowired
     private UserService userService;
 
@@ -60,13 +63,15 @@ public class PersonController {
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public String addPerson(@Valid @ModelAttribute("person") Person person, BindingResult result){
+    public String addPerson(@Valid @ModelAttribute("person") Person person, BindingResult result,
+                            @RequestParam(value = "avatarImage", required = false) MultipartFile avatar){
         if(result.hasErrors()){
             return PEOPLE;
         }
         try {
-            userService.createUser(person);
+            userService.createUser(person, avatar);
         } catch (Exception e) {
+            e.printStackTrace();
             result.reject(e.getMessage());
             return PEOPLE;
         }
