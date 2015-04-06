@@ -8,6 +8,9 @@ import com.wherepeople.spring.mvc.util.ImageUtil;
 import com.wherepeople.spring.mvc.util.WebServiceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.ServletContextAware;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +30,7 @@ import java.util.List;
  * Created by yuriy on 02.04.15.
  */
 @Service
-public class UserServiceImpl implements UserService, ServletContextAware {
+public class UserServiceImpl implements UserService, ServletContextAware, UserDetailsService {
     public static final int AVATAR_SIZE_IN_PIXELS = 70;
     @Autowired
     private PersonRepository personRepository;
@@ -114,4 +117,9 @@ public class UserServiceImpl implements UserService, ServletContextAware {
         this.servletContext = servletContext;
     }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        return null;
+    }
 }

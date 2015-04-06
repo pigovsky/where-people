@@ -1,15 +1,20 @@
 package com.wherepeople.spring.mvc.model.person;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * Class holding person name
  */
 @Entity(name = "person")
-public class Person {
+public class Person implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -47,14 +52,48 @@ public class Person {
         this.name = name;
     }
 
+    @Override
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 
     public void setUsername(String username) {
         this.username = username;
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Arrays.asList(new GrantedAuthority[]{
+                new GrantedAuthority() {
+                    @Override
+                    public String getAuthority() {
+                        return "USER";
+                    }
+                }
+        });
+    }
+
+    @Override
     public String getPassword() {
         return password;
     }

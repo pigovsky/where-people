@@ -77,4 +77,9 @@ public class PersonController {
         }
         return "redirect:/";
     }
+
+    @RequestMapping(value = "/user")
+    public String user(){
+        return "user_list";
+    }
 }
