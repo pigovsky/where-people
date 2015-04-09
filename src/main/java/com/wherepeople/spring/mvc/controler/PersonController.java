@@ -23,10 +23,14 @@ public class PersonController {
     @Autowired
     private UserService userService;
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+    @RequestMapping("/")
+    public String index(){
+        return "index";
+    }
+
+	@RequestMapping(value = "/register", method = RequestMethod.GET)
 	public String printPeople(ModelMap model) {
 		model.addAttribute("person", new Person());
-        model.addAttribute("people", userService.getAllUsers());
 		return "people";
 	}
 
@@ -72,14 +76,15 @@ public class PersonController {
             userService.createUser(person, avatar);
         } catch (Exception e) {
             e.printStackTrace();
-            result.reject(e.getMessage());
+            result.rejectValue("username", e.getMessage());
             return PEOPLE;
         }
-        return "redirect:/";
+        return "redirect:/users";
     }
 
-    @RequestMapping(value = "/user")
-    public String user(){
+    @RequestMapping(value = "/users")
+    public String user(ModelMap model){
+        model.addAttribute("people", userService.getAllUsers());
         return "user_list";
     }
 }

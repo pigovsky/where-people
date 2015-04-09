@@ -87,7 +87,7 @@ public class Person implements UserDetails{
                 new GrantedAuthority() {
                     @Override
                     public String getAuthority() {
-                        return "USER";
+                        return "ROLE_USER";
                     }
                 }
         });

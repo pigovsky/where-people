@@ -31,7 +31,7 @@ import java.util.List;
  */
 @Service
 public class UserServiceImpl implements UserService, ServletContextAware, UserDetailsService {
-    public static final int AVATAR_SIZE_IN_PIXELS = 70;
+    public static final int AVATAR_SIZE_IN_PIXELS = 200;
     @Autowired
     private PersonRepository personRepository;
 
@@ -59,6 +59,7 @@ public class UserServiceImpl implements UserService, ServletContextAware, UserDe
     public Person changeAvatar(Person person, MultipartFile avatar) throws Exception {
         System.out.println("trying to attach avatar for " + person.getUsername());
         if (avatar.isEmpty()){
+            System.out.println("trying to attach avatar for " + person.getUsername() + " is empty");
             return person;
         }
         String contentType = avatar.getContentType().toLowerCase();
@@ -119,7 +120,12 @@ public class UserServiceImpl implements UserService, ServletContextAware, UserDe
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-        return null;
+        Person oneByUsername = personRepository.findOneByUsername(username);
+        if (oneByUsername == null){
+            throw new UsernameNotFoundException(String.format("User %s not found", username));
+        } else {
+            System.out.println(String.format("Found %s",username));
+        }
+        return oneByUsername;
     }
 }

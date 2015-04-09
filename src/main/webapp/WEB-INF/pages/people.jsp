@@ -6,8 +6,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <link href="http://twitter.github.io/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
-    <link href="http://twitter.github.io/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
+
 </head>
 <body>
     <div class="containter">
