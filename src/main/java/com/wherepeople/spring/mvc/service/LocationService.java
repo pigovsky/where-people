@@ -10,5 +10,5 @@ import java.util.List;
 public interface LocationService {
     Location createLocation(Location location) throws Exception;
 
-    List<Location> getAllLocations();
+    List<Location> getLocationsAfter(long time);
 }

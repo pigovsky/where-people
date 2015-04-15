@@ -7,10 +7,7 @@ import com.wherepeople.spring.mvc.service.LocationService;
 import com.wherepeople.spring.mvc.util.WebServiceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Handles request of creating and listing locations
@@ -21,10 +18,10 @@ public class LocationController {
     @Autowired
     private LocationService locationService;
 
-    @RequestMapping("/locations")
+    @RequestMapping("/locations/{time}")
     public @ResponseBody
-    String locations(){
-        return WebServiceUtil.GSON.toJson(locationService.getAllLocations());
+    String locations(@PathVariable("time") long time){
+        return WebServiceUtil.GSON.toJson(locationService.getLocationsAfter(time));
     }
 
     @RequestMapping(value = "/location", method = RequestMethod.POST, consumes = ApiConstants.APPLICATION_JSON,
@@ -38,4 +35,6 @@ public class LocationController {
             return new RequestResult(e.getMessage()).toString();
         }
     }
+
+
 }

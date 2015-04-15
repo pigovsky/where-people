@@ -39,7 +39,8 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public List<Location> getAllLocations() {
-        return locationRepository.findAll();
+    public List<Location> getLocationsAfter(long time) {
+        return locationRepository.findByDateTimeGreaterThan(time);
+        //return locationRepository.findAll();
     }
 }
