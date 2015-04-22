@@ -2,6 +2,8 @@ package com.wherepeople.spring.mvc.controler;
 
 import com.wherepeople.spring.mvc.model.ApiConstants;
 import com.wherepeople.spring.mvc.model.location.Location;
+import com.wherepeople.spring.mvc.model.location.LocationWithTimestamp;
+import com.wherepeople.spring.mvc.model.login.AccessToken;
 import com.wherepeople.spring.mvc.model.person.RequestResult;
 import com.wherepeople.spring.mvc.service.LocationService;
 import com.wherepeople.spring.mvc.util.WebServiceUtil;
@@ -18,10 +20,16 @@ public class LocationController {
     @Autowired
     private LocationService locationService;
 
-    @RequestMapping("/locations/{time}")
+    @RequestMapping("/locations")
     public @ResponseBody
-    String locations(@PathVariable("time") long time){
-        return WebServiceUtil.GSON.toJson(locationService.getLocationsAfter(time));
+    String locations(){
+        return WebServiceUtil.GSON.toJson(locationService.getLastLocationsOfAllUsers());
+    }
+
+    @RequestMapping("/locations/{username}/{time}")
+    public @ResponseBody
+    String locations(@PathVariable("username") String username, @PathVariable("time") long time){
+        return WebServiceUtil.GSON.toJson(locationService.getUserLocationsAfter(username, time));
     }
 
     @RequestMapping(value = "/location", method = RequestMethod.POST, consumes = ApiConstants.APPLICATION_JSON,
@@ -29,7 +37,8 @@ public class LocationController {
     public @ResponseBody String location(@RequestBody String locationJson){
         try {
             Location location = WebServiceUtil.GSON.fromJson(locationJson, Location.class);
-            return WebServiceUtil.GSON.toJson(locationService.createLocation(location));
+            AccessToken accessToken = WebServiceUtil.GSON.fromJson(locationJson, AccessToken.class);
+            return WebServiceUtil.GSON.toJson(locationService.createLocation(location, accessToken));
         } catch (Exception e){
             e.printStackTrace();
             return new RequestResult(e.getMessage()).toString();

@@ -1,6 +1,5 @@
 package com.wherepeople.spring.mvc.service;
 
-import com.wherepeople.spring.mvc.model.location.Location;
 import com.wherepeople.spring.mvc.model.login.AccessToken;
 import com.wherepeople.spring.mvc.model.person.Person;
 import org.springframework.web.multipart.MultipartFile;
